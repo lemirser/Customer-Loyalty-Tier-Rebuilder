@@ -28,6 +28,7 @@ _connection_pool = None
 # Reference for file names
 time_ref = datetime.now()
 _time_ref = time_ref.strftime('%Y%m%d_%H%M%S') # Add uniqueness to the file name
+dest_path_csv = "extract/archive/"
 
 
 def initialize_database():
@@ -129,7 +130,7 @@ def raw_to_csv():
     try:
         result = get_raw_data()
 
-        with open(f"raw_transaction_{_time_ref}.csv","w", newline='') as csvfile:
+        with open(f"{dest_path_csv}raw_transaction_{_time_ref}.csv","w", newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(result[0]) # Write column names
             writer.writerows(result[1]) # Write data

@@ -6,6 +6,7 @@ import logging
 from contextlib import contextmanager
 import csv
 from datetime import datetime
+import shutil
 
 # Load environment variables
 load_dotenv()
@@ -23,6 +24,11 @@ logger = logging.getLogger(__name__)
 
 # Global connection pool
 _connection_pool = None
+
+# Reference for file names
+time_ref = datetime.now()
+_time_ref = time_ref.strftime('%Y%m%d_%H%M%S') # Add uniqueness to the file name
+
 
 def initialize_database():
     """Initialize the global database connection pool."""
@@ -120,10 +126,6 @@ def get_raw_data() -> tuple:
 def raw_to_csv():
     """Store the transaction data into CSV file for ingestion in Databricks."""
 
-    time_ref = datetime.now()
-
-    _time_ref = time_ref.strftime('%Y%m%d_%H%M%S') # Add uniqueness to the file name
-
     try:
         result = get_raw_data()
 
@@ -137,7 +139,10 @@ def raw_to_csv():
         logger.error(f"Error was encountered: {e}")
         raise
 
+    return f"raw_transaction_{_time_ref}.csv"
 
+def backup_file():
+    pass
 
 if __name__ == "__main__":
     print("\n=== Initialize extraction ===")

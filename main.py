@@ -7,6 +7,7 @@ from contextlib import contextmanager
 import csv
 from datetime import datetime
 import shutil
+import os
 
 # Load environment variables
 load_dotenv()
@@ -28,7 +29,9 @@ _connection_pool = None
 # Reference for file names
 time_ref = datetime.now()
 _time_ref = time_ref.strftime('%Y%m%d_%H%M%S') # Add uniqueness to the file name
-dest_path_csv = "extract/archive/"
+dest_path_backup = "extract/archive/"
+dest_path_csv = "extract/"
+upload_path_csv = "extract/upload/"
 
 
 def initialize_database():
@@ -83,7 +86,6 @@ def get_database_connection():
         if connection and connection.is_connected():
             connection.close()
 
-
 def select_version():
     with get_database_connection() as connection:
         cursor = connection.cursor(dictionary=True, buffered=True)
@@ -124,34 +126,62 @@ def get_raw_data() -> tuple:
         finally:
             cursor.close()
 
-def raw_to_csv():
+def raw_to_csv() -> str:
     """Store the transaction data into CSV file for ingestion in Databricks."""
 
     try:
         result = get_raw_data()
 
-        with open(f"{dest_path_csv}raw_transaction_{_time_ref}.csv","w", newline='') as csvfile:
+        with open(f"{dest_path_csv}raw_transaction.csv","w", newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(result[0]) # Write column names
             writer.writerows(result[1]) # Write data
 
-        logger.info("Creating CSV file.")
+        logger.info("Creating CSV file from the query result.")
     except Error as e:
         logger.error(f"Error was encountered: {e}")
         raise
 
-    return f"raw_transaction_{_time_ref}.csv"
+    return f"raw_transaction.csv"
 
-def backup_file():
-    pass
+def backup_file(filename:str) -> bool:
+
+    check_file = f"{dest_path_csv}{filename}"
+    try:
+        if os.path.exists(check_file):
+            logging.info("Raw file exists.")
+        else:
+            logging.warning("Raw file does not exists.")
+            raise
+
+        # Copy Original file to Archive folder
+        shutil.copy(f"{dest_path_csv}{filename}", dest_path_backup) #(source_file, destination_path)
+        logging.info("Archiving original files")
+
+        # Rename the archived file
+        shutil.move(f"{dest_path_backup}{filename}", f"{dest_path_backup}raw_transactions_{_time_ref}.csv")
+        logging.info("Renaming archived file.")
+
+        # Move and rename file for upload to Databricks
+        shutil.move(f"{dest_path_csv}{filename}", f"{upload_path_csv}raw_transactions_UPLOAD.csv")
+        logging.info("Moving original file in upload folder.")
+    except Error as e:
+        logging.error(f"An error was encountered: {e}")
+        raise
+
+    return True
+
+
 
 if __name__ == "__main__":
-    print("\n=== Initialize extraction ===")
+    logging.info("=== Process start ===")
     initialize_database()
 
     # Get DB version. Test query
     # db_ver = select_version()
 
     # Extract CSV
-    raw_to_csv()
-    print("Done")
+    raw_file = raw_to_csv()
+    backup_file(raw_file)
+    logging.info("=== Process end ===")
+    # print(raw_file)

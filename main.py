@@ -4,6 +4,8 @@ from mysql.connector import pooling, Error
 from dotenv import load_dotenv
 import logging
 from contextlib import contextmanager
+import csv
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -56,6 +58,7 @@ def initialize_database():
 @contextmanager
 def get_database_connection():
     """Get a database connection from the pool with automatic cleanup."""
+
     if not _connection_pool:
         logger.error("Database not initialized.")
         raise Exception("Database not initialized. Call initialize_database() first.")
@@ -86,37 +89,63 @@ def select_version():
         finally:
             cursor.close()
 
-def get_raw_data() -> dict:
+def get_raw_data() -> tuple:
     """Retrieve transaction data from dates 12 months prior to the current date.
 
     Returns:
-        dict: Result from the query.
+        tuple: Result from the query.
     """
+
     with get_database_connection() as connection:
-        cursor = connection.cursor(dictionary=True, buffered=True)
+        cursor = connection.cursor( buffered=True)
 
         try:
             logging.info("Fetching transation records.")
 
-            transaction = "SELECT * FROM transactions WHERE transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND CURDATE();"
+            transaction = "SELECT * FROM transactions WHERE transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND CURDATE() LIMIT 10;"
+
             cursor.execute(transaction)
 
-            return cursor.fetchone()
+            result = cursor.fetchall()
+
+            headers = cursor.column_names
+
+            return headers, result
         except Error as e:
             logger.error(f"Error during executing the query: {e}")
             raise
         finally:
             cursor.close()
 
+def raw_to_csv():
+    """Store the transaction data into CSV file for ingestion in Databricks."""
+
+    time_ref = datetime.now()
+
+    _time_ref = time_ref.strftime('%Y%m%d_%H%M%S') # Add uniqueness to the file name
+
+    try:
+        result = get_raw_data()
+
+        with open(f"raw_transaction_{_time_ref}.csv","w", newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(result[0]) # Write column names
+            writer.writerows(result[1]) # Write data
+
+        logger.info("Creating CSV file.")
+    except Error as e:
+        logger.error(f"Error was encountered: {e}")
+        raise
+
 
 
 if __name__ == "__main__":
-    print("\n=== Procedural Example ===")
+    print("\n=== Initialize extraction ===")
     initialize_database()
 
     # Get DB version. Test query
     # db_ver = select_version()
 
-    # Get raw data
-    raw_data = get_raw_data()
-    print(raw_data)
+    # Extract CSV
+    raw_to_csv()
+    print("Done")

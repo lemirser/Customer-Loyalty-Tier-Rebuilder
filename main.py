@@ -13,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('database_operations.log'),
+        logging.FileHandler('pipeline.log'),
         logging.StreamHandler()
     ]
 )
@@ -86,6 +86,28 @@ def select_version():
         finally:
             cursor.close()
 
+def get_raw_data() -> dict:
+    """Retrieve transaction data from dates 12 months prior to the current date.
+
+    Returns:
+        dict: Result from the query.
+    """
+    with get_database_connection() as connection:
+        cursor = connection.cursor(dictionary=True, buffered=True)
+
+        try:
+            logging.info("Fetching transation records.")
+
+            transaction = "SELECT * FROM transactions WHERE transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND CURDATE();"
+            cursor.execute(transaction)
+
+            return cursor.fetchone()
+        except Error as e:
+            logger.error(f"Error during executing the query: {e}")
+            raise
+        finally:
+            cursor.close()
+
 
 
 if __name__ == "__main__":
@@ -93,5 +115,8 @@ if __name__ == "__main__":
     initialize_database()
 
     # Get DB version. Test query
-    db_ver = select_version()
-    print(db_ver['VERSION()'])
+    # db_ver = select_version()
+
+    # Get raw data
+    raw_data = get_raw_data()
+    print(raw_data)

@@ -80,14 +80,20 @@ def get_database_connection():
         if connection and connection.is_connected():
             connection.close()
 
-def select_version():
+def select_version() -> dict:
+    """Function to test the database connection
+
+    Returns:
+        dict: Database version
+    """
     with get_database_connection() as connection:
         cursor = connection.cursor(dictionary=True, buffered=True)
         try:
             cursor.execute("SELECT VERSION();")
+            logger.info("Fetched the database current version.")
             return cursor.fetchone()
         except Error as e:
-            logger.error(f"Error during executing the query: {e}")
+            logger.error(f"Error fetching the database version: {e}")
             raise
         finally:
             cursor.close()
@@ -103,7 +109,7 @@ def get_raw_data() -> tuple:
         cursor = connection.cursor( buffered=True)
 
         try:
-            logging.info("Fetching transation records.")
+            logger.info("Fetching transation records.")
 
             transaction = "SELECT * FROM transactions WHERE transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND CURDATE();"
 
@@ -111,35 +117,44 @@ def get_raw_data() -> tuple:
 
             result = cursor.fetchall()
 
+            result_count = cursor.rowcount
             headers = cursor.column_names
+            logger.info("Transaction data was retrieved.")
+            logger.info(f"Number of rows fetched: {result_count}")
 
             return headers, result
         except Error as e:
-            logger.error(f"Error during executing the query: {e}")
+            logger.error(f"Error fetching the transaction data: {e}")
             raise
         finally:
             cursor.close()
 
 def raw_to_csv() -> str:
-    """Store the transaction data into CSV file for ingestion in Databricks."""
+    """Store the transaction data into a CSV file for ingestion in Databricks.
+
+    Returns:
+        str: Filename.
+    """
 
     try:
         result = get_raw_data()
 
-        with open(f"{dest_path_csv}raw_transaction.csv","w", newline='') as csvfile:
+        file_name = "raw_transaction.csv"
+
+        with open(f"{dest_path_csv}{file_name}","w", newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(result[0]) # Write column names
             writer.writerows(result[1]) # Write data
 
         logger.info("Creating CSV file from the query result.")
     except Error as e:
-        logger.error(f"Error was encountered: {e}")
+        logger.error(f"Error in creating a CSV file: {e}")
         raise
 
-    return f"raw_transaction.csv"
+    return file_name
 
 def backup_file(filename:str) -> bool:
-    """Move extracted CSV to the appropriate folder location.
+    """Move the extracted CSV to the appropriate folder location.
 
     Args:
         filename (str): Orignal CSV extracted from raw_to_csv()
@@ -158,7 +173,7 @@ def backup_file(filename:str) -> bool:
 
         # Copy Original file to Archive folder
         shutil.copy(f"{dest_path_csv}{filename}", dest_path_backup) #(source_file, destination_path)
-        logging.info("Archiving original files")
+        logging.info("Archiving the original file.")
 
         # Rename the archived file
         shutil.move(f"{dest_path_backup}{filename}", f"{dest_path_backup}raw_transactions_{_time_ref}.csv")
@@ -168,7 +183,7 @@ def backup_file(filename:str) -> bool:
         shutil.move(f"{dest_path_csv}{filename}", f"{upload_path_csv}raw_transactions_UPLOAD.csv")
         logging.info("Moving original file in upload folder.")
     except Error as e:
-        logging.error(f"An error was encountered: {e}")
+        logging.error(f"Error in processing the file: {e}")
         raise
 
     return True
@@ -184,5 +199,5 @@ if __name__ == "__main__":
 
     # Extract CSV
     raw_file = raw_to_csv()
-    backup_file(raw_file)
+    # backup_file(raw_file)
     logging.info("=== Process end ===")

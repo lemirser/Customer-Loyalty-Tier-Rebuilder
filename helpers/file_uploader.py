@@ -16,16 +16,20 @@ w = WorkspaceClient()
 logger.info("Starting Databricks setup.")
 
 time_ref = datetime.now()
-_time_ref = time_ref.strftime('%Y%m%d_%H%M%S')
+_time_ref = time_ref.strftime("%Y%m%d_%H%M%S")
 
 # Define local CSV file path and target volume path
 local_file_path = "extract/upload/raw_transactions_UPLOAD.csv"  # Replace with your local CSV file path
 catalog_name = "pyspark_tut"  # Replace with your Unity Catalog name
-schema_name = "loyalty_program"    # Replace with your schema name
-volume_name = "loyalty_pipeline"    # Replace with your volume name
-target_file_name = f"uploaded_file_{_time_ref}.csv" # Desired name for the uploaded file
+schema_name = "loyalty_program"  # Replace with your schema name
+volume_name = "loyalty_pipeline"  # Replace with your volume name
+target_file_name = (
+    f"uploaded_file_{_time_ref}.csv"  # Desired name for the uploaded file
+)
 
-volume_file_path = f"/Volumes/{catalog_name}/{schema_name}/{volume_name}/{target_file_name}"
+volume_file_path = (
+    f"/Volumes/{catalog_name}/{schema_name}/{volume_name}/{target_file_name}"
+)
 
 
 def file_checker() -> bool:
@@ -71,11 +75,12 @@ def file_uploader() -> bool:
         w.files.upload(volume_file_path, binary_data, overwrite=True)
         logger.info("Uploading file.")
 
-        logger.info(f"Successfully uploaded '{local_file_path}' to '{volume_file_path}'")
+        logger.info(
+            f"Successfully uploaded '{local_file_path}' to '{volume_file_path}'"
+        )
 
     except Exception as e:
         logger.error(f"Error uploading file: {e}")
         raise
 
     return True
-

@@ -145,13 +145,21 @@ def raw_to_csv() -> str:
     return f"raw_transaction.csv"
 
 def backup_file(filename:str) -> bool:
+    """Move extracted CSV to the appropriate folder location.
+
+    Args:
+        filename (str): Orignal CSV extracted from raw_to_csv()
+
+    Returns:
+        bool: Returns True if the process did not encountered any issue.
+    """
 
     check_file = f"{dest_path_csv}{filename}"
     try:
         if os.path.exists(check_file):
             logging.info("Raw file exists.")
         else:
-            logging.warning("Raw file does not exists.")
+            logging.error("Raw file does not exists.")
             raise
 
         # Copy Original file to Archive folder

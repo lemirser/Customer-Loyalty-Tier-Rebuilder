@@ -166,24 +166,24 @@ def backup_file(filename:str) -> bool:
     check_file = f"{dest_path_csv}{filename}"
     try:
         if os.path.exists(check_file):
-            logging.info("Raw file exists.")
+            logger.info("Raw file exists.")
         else:
-            logging.error("Raw file does not exists.")
+            logger.error("Raw file does not exists.")
             raise
 
         # Copy Original file to Archive folder
         shutil.copy(f"{dest_path_csv}{filename}", dest_path_backup) #(source_file, destination_path)
-        logging.info("Archiving the original file.")
+        logger.info("Archiving the original file.")
 
         # Rename the archived file
         shutil.move(f"{dest_path_backup}{filename}", f"{dest_path_backup}raw_transactions_{_time_ref}.csv")
-        logging.info("Renaming archived file.")
+        logger.info("Renaming archived file.")
 
         # Move and rename file for upload to Databricks
         shutil.move(f"{dest_path_csv}{filename}", f"{upload_path_csv}raw_transactions_UPLOAD.csv")
-        logging.info("Moving original file in upload folder.")
+        logger.info("Moving original file in upload folder.")
     except Error as e:
-        logging.error(f"Error in processing the file: {e}")
+        logger.error(f"Error in processing the file: {e}")
         raise
 
     return True

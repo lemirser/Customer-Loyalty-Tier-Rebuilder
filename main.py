@@ -105,7 +105,7 @@ def get_raw_data() -> tuple:
         try:
             logging.info("Fetching transation records.")
 
-            transaction = "SELECT * FROM transactions WHERE transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND CURDATE() LIMIT 10;"
+            transaction = "SELECT * FROM transactions WHERE transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND CURDATE();"
 
             cursor.execute(transaction)
 

@@ -8,19 +8,13 @@ import csv
 from datetime import datetime
 import shutil
 import os
+from helpers.logger_config import setup_logging
 
 # Load environment variables
 load_dotenv()
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('pipeline.log'),
-        logging.StreamHandler()
-    ]
-)
+setup_logging()
 logger = logging.getLogger(__name__)
 
 # Global connection pool
@@ -192,4 +186,3 @@ if __name__ == "__main__":
     raw_file = raw_to_csv()
     backup_file(raw_file)
     logging.info("=== Process end ===")
-    # print(raw_file)

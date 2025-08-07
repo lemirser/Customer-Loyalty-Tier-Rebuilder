@@ -30,6 +30,8 @@ def select_version() -> dict:
 def get_raw_data() -> tuple:
     """Retrieve transaction data from dates 12 months prior to the current date.
 
+    Do a preprocessing of filling up the null values under the amount column.
+
     Returns:
         tuple: Result from the query.
     """
@@ -41,11 +43,21 @@ def get_raw_data() -> tuple:
             logger.info("Fetching transation records.")
 
             transaction = """
-                        SELECT *
-                        FROM transactions
+                        SELECT
+                            transaction_id,
+                            customer_id,
+                            transaction_date ,
+                            COALESCE(amount, AVG(amount)
+                                OVER (
+                                    PARTITION BY customer_id, transaction_date
+                                    ORDER BY transaction_date ASC
+                                    )) amount
+                        FROM
+                            transactions
                         WHERE
-                        transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-                        AND CURDATE();
+                            transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND CURDATE()
+                        ORDER BY
+                            transaction_id ASC;
                         """.strip()
 
             cursor.execute(transaction)

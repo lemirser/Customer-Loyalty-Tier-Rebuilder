@@ -2,6 +2,7 @@ import os
 import logging
 from dotenv import load_dotenv
 
+
 def setup_logging():
     load_dotenv()
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()

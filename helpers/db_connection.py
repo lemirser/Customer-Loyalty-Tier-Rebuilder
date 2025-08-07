@@ -23,8 +23,8 @@ def initialize_database():
     try:
         pool_config = {
             "pool_name": os.getenv("POOL_NAME", "mysql_pool_procedural"),
-            "pool_size": os.getenv("POOL_SIZE", 10),
-            "pool_reset_session": os.getenv("POOL_RESET_SESSION", True),
+            "pool_size": int(os.getenv("POOL_SIZE", 10)),
+            "pool_reset_session": True,
             "host": os.getenv("DB_HOST", "localhost"),
             "database": os.getenv("DB_NAME"),
             "user": os.getenv("DB_USER"),
@@ -32,10 +32,10 @@ def initialize_database():
             "port": int(os.getenv("DB_PORT", 3306)),
             "charset": os.getenv("CHARSET"),
             "collation": os.getenv("COLLATION"),
-            "autocommit": os.getenv("AUTOCOMMIT"),
+            "autocommit": True,
             "sql_mode": os.getenv("SQL_MODE"),
-            "use_unicode": os.getenv("USE_UNICODE"),
-            "connect_timeout": os.getenv("CONNECTION_TIMEOUT", 10),
+            "use_unicode": True,
+            "connect_timeout": int(os.getenv("CONNECTION_TIMEOUT", 10)),
             "auth_plugin": os.getenv("AUTH_PLUGIN"),
             "raise_on_warnings": True,
         }

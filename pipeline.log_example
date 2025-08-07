@@ -1,0 +1,14 @@
+2025-08-07 22:03:12,528 - helpers.file_uploader - INFO - Starting Databricks setup.
+2025-08-07 22:03:12,568 - __main__ - INFO - === Process start ===
+2025-08-07 22:03:12,628 - helpers.db_connection - INFO - Database initialized successfully
+2025-08-07 22:03:12,628 - helpers.db_connection - INFO - Connecting to database.
+2025-08-07 22:03:12,628 - helpers.db_operations - INFO - Fetching transation records.
+2025-08-07 22:03:12,651 - helpers.db_operations - INFO - Retrieved the transaction data.
+2025-08-07 22:03:12,651 - helpers.db_operations - INFO - Number of fetched rows: 10000
+2025-08-07 22:03:12,651 - helpers.db_connection - INFO - Closing the database connection.
+2025-08-07 22:03:12,661 - helpers.etl_utils - INFO - Creating CSV file from the query result.
+2025-08-07 22:03:12,662 - helpers.etl_utils - INFO - Raw file exists.
+2025-08-07 22:03:12,663 - helpers.etl_utils - INFO - Archiving the original file.
+2025-08-07 22:03:12,664 - helpers.etl_utils - INFO - Renaming archived file.
+2025-08-07 22:03:12,664 - helpers.etl_utils - INFO - Moving original file to upload folder.
+2025-08-07 22:03:12,664 - __main__ - INFO - === Process end ===

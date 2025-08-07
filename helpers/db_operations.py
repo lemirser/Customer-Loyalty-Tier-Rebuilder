@@ -30,7 +30,8 @@ def select_version() -> dict:
 def get_raw_data() -> tuple:
     """Retrieve transaction data from dates 12 months prior to the current date.
 
-    Do a preprocessing of filling up the null values under the amount column.
+    Use the average amount to fill the null values. Null values will remain null if there is only one transaction for
+    that day (Grouped by customer_id, and transaction_date).
 
     Returns:
         tuple: Result from the query.

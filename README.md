@@ -1,6 +1,6 @@
 # Customer-Loyalty-Tier-Rebuilder
-[![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)](https://www.python.org/downloads/)
-[![PySpark](https://img.shields.io/badge/PySpark-v3.0+-orange.svg)](https://spark.apache.org/)
+[![Python](https://img.shields.io/badge/python-v3.13+-blue.svg)](https://www.python.org/downloads/)
+[![PySpark](https://img.shields.io/badge/PySpark-v4.0+-orange.svg)](https://spark.apache.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 An automated ETL pipeline that processes customer transaction data to rebuild loyalty tier classifications for e-commerce marketing campaigns.

@@ -1,0 +1,1 @@
+CREATE CATALOG IF NOT EXISTS 'pyspark_tut' COMMENT 'Catalog for PySpark Tutorial queries';

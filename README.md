@@ -80,24 +80,29 @@ python etl_main.py
 customer-loyalty-tier-rebuilder/
 ├── helpers/
 │   ├── __init__.py
-│   ├── db_connection.py            # MySQL connection handler
-│   ├── db_operations.py            # MySQL query operations
-│   ├── etl_utils.py                # Data to CSV transformation
-│   ├── file_uploader.py            # File uploader operation to Databricks
-│   └── logger_config.py            # Logging setup
+│   ├── db_connection.py                  # MySQL connection handler
+│   ├── db_operations.py                  # MySQL query operations
+│   ├── etl_utils.py                      # Data to CSV transformation
+│   ├── file_uploader.py                  # File uploader operation to Databricks
+│   └── logger_config.py                  # Logging setup
 ├── extract/
-│   ├── raw_transaction.csv         # Raw data extracted from MySQL database
-│   ├── archive/                    # Backup data
-│   ├── upload/                     # Data for uploading to Databrics
-│   └── sample_data/                # MySQL DML file
-│       └── transaction_records.sql # DML query
+│   ├── raw_transaction.csv               # Raw data extracted from MySQL database
+│   ├── archive/                          # Backup data
+│   └── upload/                           # Data for uploading to Databrics
 ├── notebooks/
-│   └── loyalty_tier.ipynb          # PySpark notebook from Databricks
-├── etl_main.py                     # Main orchestration script
-├── requirements.txt                # Python dependencies
-├── .env.example                    # Environment variables template
-├── pipeline.log_example            # Auto-generated log file
-└── README.md                       # This file
+│   └── loyalty_tier.ipynb                # PySpark notebook from Databricks
+├── sql/
+│   ├── ddl/                              # All CREATE / ALTER / DROP statements.
+│   │   └── create_catalog_pyspark_tut.sql
+│   │   └── create_schema_loyalty_program.sql
+│   │   └── create_table_customer_tier.sql
+│   └── dml/                              # INSERT, UPDATE, DELETE operations.
+│       └── transaction_records.sql       # Sample transaction records
+├── etl_main.py                           # Main orchestration script
+├── requirements.txt                      # Python dependencies
+├── .env.example                          # Environment variables template
+├── pipeline.log_example                  # Auto-generated log file
+└── README.md                             # This file
 ```
 
 ## Configuration

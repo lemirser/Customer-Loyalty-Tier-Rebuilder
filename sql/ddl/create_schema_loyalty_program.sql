@@ -1,0 +1,1 @@
+CREATE SCHEMA IF NOT EXISTS pyspark_tut.loyalty_program COMMENT 'This schema is for the Customer Loyalty Tier program';

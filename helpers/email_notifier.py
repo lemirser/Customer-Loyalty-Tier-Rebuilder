@@ -75,3 +75,59 @@ def sanitize_parameters(
     logger.info("Done checking the parameters.")
 
     return result
+
+
+def send_email(
+    sender_email,
+    sender_password,
+    receiver_emails,
+    html_content,
+    subject="Loyalty Program Update",
+    email_provider="gmail",
+):
+    """
+    Sends an HTML email to one or multiple recipients using SMTP with SSL.
+
+    Args:
+        sender_email (str): Your email address (must match SMTP login).
+        sender_password (str): Your email password or app-specific password.
+        receiver_emails (list[str]): List of recipient email addresses.
+        subject (str): Email subject.
+        html_content (str): HTML content of the email body.
+    """
+    # Sanitize
+    clean_email_provider, clean_receiver_emails, clean_subject = sanitize_parameters(
+        email_provider, receiver_emails, subject
+    )
+
+    # Create email container
+    message = MIMEMultipart("alternative")  # allows both plain and HTML versions
+    message["From"] = sender_email
+    message["To"] = ", ".join(clean_receiver_emails)
+    message["Subject"] = clean_subject
+
+    # Attach plain text and HTML versions
+    message.attach(MIMEText(html_content, "html"))
+
+    # SMTP secure connection
+    if clean_email_provider == "gmail":
+        smtp_server = os.getenv("EMAIL_SMTP")
+        port = os.getenv("EMAIL_PORT")
+        context = os.getenv("EMAIL_CONTEXT")
+    elif clean_email_provider == "outlook":
+        smtp_server = os.getenv("OUTLOOK_SMTP")
+        port = os.getenv("OUTLOOK_PORT")
+        context = os.getenv("EMAIL_CONTEXT")
+    elif clean_email_provider == "yahoo":
+        smtp_server = os.getenv("YAHOO_SMTP")
+        port = os.getenv("YAHOO_PORT")
+        context = os.getenv("EMAIL_CONTEXT")
+
+    try:
+        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, receiver_emails, message.as_string())
+        logger.info("Successfully sent the email.")
+    except Exception as e:
+        logging.error(f"There was an issue sending the email : {e}")
+        raise

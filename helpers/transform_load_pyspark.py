@@ -4,10 +4,11 @@ from pyspark.sql.types import (
     IntegerType,
     StringType,
     DateType,
+    DecimalType,
     StructField,
     StructType,
 )
-from pyspark.sql.functions import col, sum
+from pyspark.sql.functions import col, sum, count
 
 
 def init_spark(app_name: str = "CustomerLoyaltyTierApp"):
@@ -58,6 +59,14 @@ def read_file(spark):
 
 
 def null_value_checker(df):
+    """Checking for null values
+
+    Args:
+        df (DataFrame): DataFrame to check
+
+    Returns:
+        dict: Null value record.
+    """
     null_customer_id = df.select(
         sum(col("customer_id").isNull().cast("int")).alias("Null customer_id count")
     )
@@ -95,6 +104,23 @@ def null_value_checker(df):
     return null_values
 
 
+def group_data():
+    """Aggregate data to fetch the total transaction amount and transaction count per customer
+
+    Returns:
+        DataFrame: Aggregated data
+    """
+    # Create a new dataframe
+    df_grouped = df.alias("df_grouped")
+
+    df_grouped = df_grouped.groupby(col("customer_id")).agg(
+        sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
+        count("transaction_id").cast("int").alias("transaction_count"),
+    )
+
+    return df_grouped
+
+
 if __name__ == "__main__":
     spark = init_spark()
 
@@ -102,12 +128,14 @@ if __name__ == "__main__":
     # print(df.limit(10).show())
 
     # EDA
-    df.summary().show()
-    null_value_checker(df)["cust_id"].show()
-    null_value_checker(df)["amount"].show()
-    null_value_checker(df)["fname"].show()
-    null_value_checker(df)["lname"].show()
-    null_value_checker(df)["email"].show()
-    null_value_checker(df)["reg_date"].show()
+    # df.summary().show()
+    # null_value_checker(df)["cust_id"].show()
+    # null_value_checker(df)["amount"].show()
+    # null_value_checker(df)["fname"].show()
+    # null_value_checker(df)["lname"].show()
+    # null_value_checker(df)["email"].show()
+    # null_value_checker(df)["reg_date"].show()
+
+    group_data().limit(10).show()
 
     spark.stop()

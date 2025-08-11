@@ -9,7 +9,7 @@ from pyspark.sql.types import (
     StructType,
 )
 from pyspark.sql.functions import col, sum, count, expr
-from logger_config import setup_logging
+from .logger_config import setup_logging
 from dotenv import load_dotenv
 import logging
 

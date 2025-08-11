@@ -9,6 +9,16 @@ from pyspark.sql.types import (
     StructType,
 )
 from pyspark.sql.functions import col, sum, count, expr
+from logger_config import setup_logging
+from dotenv import load_dotenv
+import logging
+
+# Loading .env configuration
+load_dotenv()
+
+# Logging configuration
+setup_logging()
+logger = logging.getLogger(__name__)
 
 
 def init_spark(app_name: str = "CustomerLoyaltyTierApp"):
@@ -20,12 +30,17 @@ def init_spark(app_name: str = "CustomerLoyaltyTierApp"):
     Returns:
         _type_: Spark Session
     """
-    spark = (
-        SparkSession.builder.appName(app_name)
-        .master("local[*]")  # Number of cores to run, * == Run on all cores
-        .config("spark.sql.catalogImplementation", "in-memory")
-        .getOrCreate()
-    )
+    logger.info("Starting Spark Session")
+    try:
+        spark = (
+            SparkSession.builder.appName(app_name)
+            .master("local[*]")  # Number of cores to run, * == Run on all cores
+            .config("spark.sql.catalogImplementation", "in-memory")
+            .getOrCreate()
+        )
+    except Exception as e:
+        logger.error(f"Encountered an error with Spark Session: {e}")
+        raise
 
     return spark
 
@@ -50,10 +65,17 @@ def read_file(spark):
     )
 
     file_path = "extract/upload/raw_transactions_UPLOAD.csv"
-
-    df = (
-        spark.read.format("csv").option("header", "true").schema(schema).load(file_path)
-    )
+    try:
+        logger.info("Loading CSV file in Spark.")
+        df = (
+            spark.read.format("csv")
+            .option("header", "true")
+            .schema(schema)
+            .load(file_path)
+        )
+    except Exception as e:
+        logger.error(f"Error in reading CSV file: {e}")
+        raise
 
     return df
 
@@ -67,30 +89,61 @@ def null_value_checker(df):
     Returns:
         dict: Null value record.
     """
-    null_customer_id = df.select(
-        sum(col("customer_id").isNull().cast("int")).alias("Null customer_id count")
-    )
-
-    null_amount = df.select(
-        sum(col("amount").isNull().cast("int")).alias("Null amount count")
-    )
-
-    null_fname = df.select(
-        sum(col("first_name").isNull().cast("int")).alias("Null first_name count")
-    )
-
-    null_lname = df.select(
-        sum(col("last_name").isNull().cast("int")).alias("Null last_name count")
-    )
-    null_email = df.select(
-        sum(col("email").isNull().cast("int")).alias("Null email count")
-    )
-
-    null_reg_date = df.select(
-        sum(col("registration_date").isNull().cast("int")).alias(
-            "Null registration_date count"
+    try:
+        logger.info("Checking for customer_id null")
+        null_customer_id = df.select(
+            sum(col("customer_id").isNull().cast("int")).alias("Null customer_id count")
         )
-    )
+    except Exception as e:
+        logger.error(f"Error in checking customer_id: {e}")
+        raise
+
+    try:
+        logger.info("Checkign for amount null")
+        null_amount = df.select(
+            sum(col("amount").isNull().cast("int")).alias("Null amount count")
+        )
+    except Exception as e:
+        logger.error(f"Error in checking amount: {e}")
+        raise
+
+    try:
+        logger.info("Checking first_name null")
+        null_fname = df.select(
+            sum(col("first_name").isNull().cast("int")).alias("Null first_name count")
+        )
+    except Exception as e:
+        logger.error(f"Error in checking first_name: {e}")
+        raise
+
+    try:
+        logger.info("Checking last_name null")
+        null_lname = df.select(
+            sum(col("last_name").isNull().cast("int")).alias("Null last_name count")
+        )
+    except Exception as e:
+        logger.error(f"Error in checking last_name: {e}")
+        raise
+
+    try:
+        logger.info("Checking email null")
+        null_email = df.select(
+            sum(col("email").isNull().cast("int")).alias("Null email count")
+        )
+    except Exception as e:
+        logger.error(f"Error in checking email: {e}")
+        raise
+
+    try:
+        logger.info("Checking registration_date null")
+        null_reg_date = df.select(
+            sum(col("registration_date").isNull().cast("int")).alias(
+                "Null registration_date count"
+            )
+        )
+    except Exception as e:
+        logger.error(f"Error in checking registration_date: {e}")
+        raise
 
     null_values = {
         "cust_id": null_customer_id,
@@ -110,13 +163,18 @@ def group_data(df):
     Returns:
         DataFrame: Aggregated data
     """
-    # Create a new dataframe
-    df_grouped = df.alias("df_grouped")
+    try:
+        logger.info("Grouping data")
+        # Create a new dataframe
+        df_grouped = df.alias("df_grouped")
 
-    df_grouped = df_grouped.groupby(col("customer_id")).agg(
-        sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
-        count("transaction_id").cast("int").alias("transaction_count"),
-    )
+        df_grouped = df_grouped.groupby(col("customer_id")).agg(
+            sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
+            count("transaction_id").cast("int").alias("transaction_count"),
+        )
+    except Exception as e:
+        logger.error(f"Error in grouping data: {e}")
+        raise
 
     return df_grouped
 
@@ -132,17 +190,22 @@ def tier(df_grouped):
     | **Bronze**    | < ₱20,000     | < 5   |
     """
 
-    df_grouped = df_grouped.withColumn(
-        "tier",
-        expr(
-            "CASE WHEN total_amount >= 100000 and transaction_count >= 20 THEN 'Platinum' "
-            + "WHEN total_amount >= 50000 and transaction_count >= 10 THEN 'Gold' "
-            + "WHEN total_amount >= 20000 and transaction_count >= 5 THEN 'Silver' "
-            + "ELSE 'Bronze' END"
-        ),
-    )
+    try:
+        logger.info("Processing customer tier")
+        df_grouped = df_grouped.withColumn(
+            "tier",
+            expr(
+                "CASE WHEN total_amount >= 100000 and transaction_count >= 20 THEN 'Platinum' "
+                + "WHEN total_amount >= 50000 and transaction_count >= 10 THEN 'Gold' "
+                + "WHEN total_amount >= 20000 and transaction_count >= 5 THEN 'Silver' "
+                + "ELSE 'Bronze' END"
+            ),
+        )
 
-    df_grouped = df_grouped.sort(col("customer_id").asc())
+        df_grouped = df_grouped.sort(col("customer_id").asc())
+    except Exception as e:
+        logger.error(f"Error in processing customer tier: {e}")
+        raise
 
     return df_grouped
 
@@ -167,3 +230,4 @@ if __name__ == "__main__":
     tier(df_grouped).limit(10).show()
 
     spark.stop()
+    logger.info("Stopping Spark Session")

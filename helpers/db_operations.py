@@ -45,20 +45,29 @@ def get_raw_data() -> tuple:
 
             transaction = """
                         SELECT
-                            transaction_id,
-                            customer_id,
-                            transaction_date ,
-                            COALESCE(amount, AVG(amount)
+                            tr.transaction_id,
+                            tr.customer_id,
+                            tr.transaction_date ,
+                            COALESCE(tr.amount, AVG(tr.amount)
                                 OVER (
-                                    PARTITION BY customer_id, transaction_date
-                                    ORDER BY transaction_date ASC
-                                    )) amount
+                                    PARTITION BY tr.customer_id, tr.transaction_date
+                                    ORDER BY tr.transaction_date ASC
+                                    )) amount,
+                            # Anonimize user info
+                            ca.fname first_name,
+                            ca.lname last_name,
+                            ca.email,
+                            ca.registration_date
                         FROM
-                            transactions
+                            transactions tr
+                        LEFT JOIN
+                            customer_anon ca
+                        ON
+                            tr.customer_id = ca.id
                         WHERE
-                            transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND CURDATE()
+                            tr.transaction_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND CURDATE()
                         ORDER BY
-                            transaction_id ASC;
+                        tr.customer_id ASC;
                         """.strip()
 
             cursor.execute(transaction)

@@ -8,7 +8,7 @@ from pyspark.sql.types import (
     StructField,
     StructType,
 )
-from pyspark.sql.functions import col, sum, count
+from pyspark.sql.functions import col, sum, count, expr
 
 
 def init_spark(app_name: str = "CustomerLoyaltyTierApp"):
@@ -104,7 +104,7 @@ def null_value_checker(df):
     return null_values
 
 
-def group_data():
+def group_data(df):
     """Aggregate data to fetch the total transaction amount and transaction count per customer
 
     Returns:
@@ -117,6 +117,32 @@ def group_data():
         sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
         count("transaction_id").cast("int").alias("transaction_count"),
     )
+
+    return df_grouped
+
+
+def tier(df_grouped):
+    """Process customer tier
+
+    | Tier | Total Spent | Transaction Count |
+    |------|-------------|-------------------|
+    | **Platinum**  | ≥ ₱100,000    | ≥ 20  |
+    | **Gold**      | ≥ ₱50,000     | ≥ 10  |
+    | **Silver**    | ≥ ₱20,000     | ≥ 5   |
+    | **Bronze**    | < ₱20,000     | < 5   |
+    """
+
+    df_grouped = df_grouped.withColumn(
+        "tier",
+        expr(
+            "CASE WHEN total_amount >= 100000 and transaction_count >= 20 THEN 'Platinum' "
+            + "WHEN total_amount >= 50000 and transaction_count >= 10 THEN 'Gold' "
+            + "WHEN total_amount >= 20000 and transaction_count >= 5 THEN 'Silver' "
+            + "ELSE 'Bronze' END"
+        ),
+    )
+
+    df_grouped = df_grouped.sort(col("customer_id").asc())
 
     return df_grouped
 
@@ -136,6 +162,8 @@ if __name__ == "__main__":
     # null_value_checker(df)["email"].show()
     # null_value_checker(df)["reg_date"].show()
 
-    group_data().limit(10).show()
+    # Tier processing
+    df_grouped = group_data(df)
+    tier(df_grouped).limit(10).show()
 
     spark.stop()

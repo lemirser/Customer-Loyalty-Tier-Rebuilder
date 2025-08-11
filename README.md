@@ -86,6 +86,7 @@ customer-loyalty-tier-rebuilder/
 │   ├── file_uploader.py                  # File uploader operation to Databricks
 │   ├── email_html_template.py            # HTML template for the email notification
 │   ├── email_notifier.py                 # Email notifier
+│   ├── transform_load_pyspark.py         # Pyspark operations
 │   └── logger_config.py                  # Logging setup
 ├── extract/
 │   ├── raw_transaction.csv               # Raw data extracted from MySQL database

@@ -99,6 +99,7 @@ customer-loyalty-tier-rebuilder/
 │   │   ├── create_schema_loyalty_program.sql
 │   │   ├── create_table_customers.sql
 │   │   ├── create_table_customer_anon.sql
+│   │   ├── create_table_transactions.sql
 │   │   └── create_table_customer_tier.sql
 │   └── dml/                              # INSERT, UPDATE, DELETE operations.
 │       └── transaction_records.sql       # Sample transaction records

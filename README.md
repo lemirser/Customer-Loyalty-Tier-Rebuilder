@@ -95,8 +95,10 @@ customer-loyalty-tier-rebuilder/
 │   └── loyalty_tier.ipynb                # PySpark notebook from Databricks
 ├── sql/
 │   ├── ddl/                              # All CREATE / ALTER / DROP statements.
-│   │   └── create_catalog_pyspark_tut.sql
-│   │   └── create_schema_loyalty_program.sql
+│   │   ├── create_catalog_pyspark_tut.sql
+│   │   ├── create_schema_loyalty_program.sql
+│   │   ├── create_table_customers.sql
+│   │   ├── create_table_customer_anon.sql
 │   │   └── create_table_customer_tier.sql
 │   └── dml/                              # INSERT, UPDATE, DELETE operations.
 │       └── transaction_records.sql       # Sample transaction records

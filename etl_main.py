@@ -4,6 +4,7 @@ from helpers.logger_config import setup_logging
 from helpers.file_uploader import file_uploader
 from helpers.db_connection import initialize_database
 from helpers.etl_utils import raw_to_csv, backup_file
+from helpers.transform_load_pyspark import init_spark, read_file, group_data, tier
 
 # Load environment variables
 load_dotenv()
@@ -26,10 +27,16 @@ if __name__ == "__main__":
     # print(raw_data)
 
     # Extract CSV
-    raw_file = raw_to_csv()
-    backup_file(raw_file)
+    # raw_file = raw_to_csv()
+    # backup_file(raw_file)
 
     # File uploader
-    file_uploader()
+    # file_uploader()
+
+    # Spark Session
+    spark = init_spark()
+    df = read_file(spark)
+    df_grouped = group_data(df)
+    tier(df_grouped).limit(10).show()
 
     logger.info("=== Process end ===")

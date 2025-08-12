@@ -31,12 +31,12 @@ def email_check(email_address) -> str:
     try:
         email_info = validate_email(
             email_address, check_deliverability=False
-        )  # This will make a DNS query to check the domain
+        )  # This will make a DNS query to check the domain if set to True
         logger.info("Validating Email address.")
 
         email = email_info.normalized
     except EmailNotValidError as e:
-        logger.error(f"Email address is not valid: {e}")
+        logger.error(f"Email address [{email_address}] is not valid: {e}")
         raise
 
     return email
@@ -68,9 +68,10 @@ def sanitize_parameters(
         raise
 
     clean_subject = re.sub(r"[^a-zA-Z0-9]", "", subject)
+
     clean_receiver_emails = email_check(receiver_emails)
 
-    result = (email_provider, clean_receiver_emails, clean_subject)
+    result = (clean_receiver_emails, clean_subject, email_provider)
 
     logger.info("Done checking the parameters.")
 
@@ -96,8 +97,8 @@ def send_email(
         html_content (str): HTML content of the email body.
     """
     # Sanitize
-    clean_email_provider, clean_receiver_emails, clean_subject = sanitize_parameters(
-        email_provider, receiver_emails, subject
+    clean_receiver_emails, clean_subject, clean_email_provider = sanitize_parameters(
+        receiver_emails, subject, email_provider
     )
 
     # Create email container
@@ -111,9 +112,9 @@ def send_email(
 
     # SMTP secure connection
     if clean_email_provider == "gmail":
-        smtp_server = os.getenv("EMAIL_SMTP")
-        port = os.getenv("EMAIL_PORT")
-        context = os.getenv("EMAIL_CONTEXT")
+        smtp_server = os.getenv("GMAIL_SMTP")
+        port = os.getenv("GMAIL_PORT")
+        context = os.getenv("GMAIL_CONTEXT")
     elif clean_email_provider == "outlook":
         smtp_server = os.getenv("OUTLOOK_SMTP")
         port = os.getenv("OUTLOOK_PORT")
@@ -129,5 +130,7 @@ def send_email(
             server.sendmail(sender_email, receiver_emails, message.as_string())
         logger.info("Successfully sent the email.")
     except Exception as e:
-        logging.error(f"There was an issue sending the email : {e}")
+        logging.error(
+            f"There was an issue sending the email {clean_email_provider}: {e}"
+        )
         raise

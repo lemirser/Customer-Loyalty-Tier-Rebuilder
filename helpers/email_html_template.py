@@ -7,10 +7,10 @@ def html_template(
     transaction_count=0,
 ):
 
-    dashboard_url = "https://www.youtube.com"
+    dashboard_url = "https://www.youtube.com"  # Placeholder
     cta_color = ""
 
-    unsubscribe_url = "https://www.google.com"
+    unsubscribe_url = "https://www.google.com"  # Placeholder
     level = {
         "Platinum": {
             "header_color": "#D9D9D9",
@@ -62,7 +62,7 @@ def html_template(
         <div style="margin: 0 0 30px 0; padding: 20px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
             <h4 style="margin: 0 0 10px 0; color: #856404;">Next Goal: Gold Tier</h4>
             <p style="margin: 0; color: #856404; font-size: 14px;">
-                Spend ₱{(30000-sum_amount):,.2f} more and complete {10-transaction_count} more transactions to unlock Gold benefits!
+                Spend ₱{(50000-sum_amount):,.2f} more and complete {10-transaction_count} more transactions to unlock Gold benefits!
             </p>
         </div>
         """

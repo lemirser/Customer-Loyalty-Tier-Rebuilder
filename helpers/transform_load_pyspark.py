@@ -8,8 +8,8 @@ from pyspark.sql.types import (
     StructField,
     StructType,
 )
-from pyspark.sql.functions import col, sum, count, expr
-from .logger_config import setup_logging
+from pyspark.sql.functions import col, sum, count, expr, lit
+from logger_config import setup_logging
 from dotenv import load_dotenv
 import logging
 
@@ -168,10 +168,13 @@ def group_data(df):
         # Create a new dataframe
         df_grouped = df.alias("df_grouped")
 
-        df_grouped = df_grouped.groupby(col("customer_id")).agg(
+        df_grouped = df_grouped.groupby(
+            col("customer_id"), col("first_name"), col("last_name"), col("email")
+        ).agg(
             sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
             count("transaction_id").cast("int").alias("transaction_count"),
         )
+
     except Exception as e:
         logger.error(f"Error in grouping data: {e}")
         raise
@@ -227,7 +230,8 @@ if __name__ == "__main__":
 
     # Tier processing
     df_grouped = group_data(df)
-    tier(df_grouped).limit(10).show()
+    df_tier = tier(df_grouped)
+    df_tier.limit(10).show()
 
     spark.stop()
     logger.info("Stopping Spark Session")

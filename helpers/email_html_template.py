@@ -76,7 +76,7 @@ def html_template(
         """
     elif current_tier == "Bronze":
         next_tier_info = f"""
-        <div style="margin: 0 0 30px 0; padding: 20px; background-color: #E0E0E0; border-left: 4px solid #ffc107; border-radius: 4px;">
+        <div style="margin: 0 0 30px 0; padding: 20px; background-color: #E0E0E0; border-left: 4px solid #C4C4C4; border-radius: 4px;">
             <h4 style="margin: 0 0 10px 0; color: #666666;">Next Goal: Silver Tier</h4>
             <p style="margin: 0; color: #666666; font-size: 14px;">
                 Spend ₱{(20000-sum_amount):,.2f} more and complete {5-transaction_count} more transactions to unlock Silver benefits!

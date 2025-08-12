@@ -12,6 +12,7 @@ from pyspark.sql.functions import col, sum, count, expr, lit
 from logger_config import setup_logging
 from dotenv import load_dotenv
 import logging
+import os
 
 # Loading .env configuration
 load_dotenv()
@@ -174,7 +175,7 @@ def group_data(df):
                 sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
                 count("transaction_id").cast("int").alias("transaction_count"),
             )
-            .withColumn("email", lit("jd1388813@gmail.com"))
+            .withColumn("email", lit(os.getenv("TEST_EMAIL")))
         )
 
     except Exception as e:
@@ -215,19 +216,28 @@ def tier(df_grouped):
     return df_grouped
 
 
-def process_user_email(df) -> list:
+def process_user_email(df) -> dict:
     """Fetch the user email for email notification
 
     Args:
         df (_type_): DataFrame reference
 
     Returns:
-        list: List of user email address
+        dict: Breakdown of user details
     """
-    local_iterator = df.select(col("email")).limit(10).toLocalIterator()
+    user_details = {}
+    local_iterator = df.limit(10).toLocalIterator()
 
-    email_list = [row.email for row in local_iterator]
-    return email_list
+    for row in local_iterator:
+        user_details[row.email] = {
+            "fname": row.first_name,
+            "lname": row.last_name,
+            "total_amount": row.total_amount,
+            "transaction_count": row.transaction_count,
+            "tier": row.tier,
+        }
+
+    return user_details
 
 
 if __name__ == "__main__":

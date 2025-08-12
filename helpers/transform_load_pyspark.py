@@ -8,8 +8,8 @@ from pyspark.sql.types import (
     StructField,
     StructType,
 )
-from pyspark.sql.functions import col, sum, count, expr, lit
-from logger_config import setup_logging
+from pyspark.sql.functions import col, sum, count, expr
+from .logger_config import setup_logging
 from dotenv import load_dotenv
 import logging
 import os
@@ -169,13 +169,11 @@ def group_data(df):
         # Create a new dataframe
         df_grouped = df.alias("df_grouped")
 
-        df_grouped = (
-            df_grouped.groupby(col("customer_id"), col("first_name"), col("last_name"))
-            .agg(
-                sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
-                count("transaction_id").cast("int").alias("transaction_count"),
-            )
-            .withColumn("email", lit(os.getenv("TEST_EMAIL")))
+        df_grouped = df_grouped.groupby(
+            col("customer_id"), col("first_name"), col("last_name"), col("email")
+        ).agg(
+            sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
+            count("transaction_id").cast("int").alias("transaction_count"),
         )
 
     except Exception as e:

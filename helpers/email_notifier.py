@@ -104,7 +104,7 @@ def send_email(
     # Create email container
     message = MIMEMultipart("alternative")  # allows both plain and HTML versions
     message["From"] = sender_email
-    message["To"] = ", ".join(clean_receiver_emails)
+    message["To"] = clean_receiver_emails
     message["Subject"] = clean_subject
 
     # Attach plain text and HTML versions

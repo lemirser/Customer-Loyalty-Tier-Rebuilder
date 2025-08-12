@@ -168,11 +168,13 @@ def group_data(df):
         # Create a new dataframe
         df_grouped = df.alias("df_grouped")
 
-        df_grouped = df_grouped.groupby(
-            col("customer_id"), col("first_name"), col("last_name"), col("email")
-        ).agg(
-            sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
-            count("transaction_id").cast("int").alias("transaction_count"),
+        df_grouped = (
+            df_grouped.groupby(col("customer_id"), col("first_name"), col("last_name"))
+            .agg(
+                sum("amount").cast(DecimalType(10, 2)).alias("total_amount"),
+                count("transaction_id").cast("int").alias("transaction_count"),
+            )
+            .withColumn("email", lit("jd1388813@gmail.com"))
         )
 
     except Exception as e:

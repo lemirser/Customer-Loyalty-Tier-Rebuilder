@@ -215,6 +215,21 @@ def tier(df_grouped):
     return df_grouped
 
 
+def process_user_email(df) -> list:
+    """Fetch the user email for email notification
+
+    Args:
+        df (_type_): DataFrame reference
+
+    Returns:
+        list: List of user email address
+    """
+    local_iterator = df.select(col("email")).limit(10).toLocalIterator()
+
+    email_list = [row.email for row in local_iterator]
+    return email_list
+
+
 if __name__ == "__main__":
     spark = init_spark()
 
@@ -234,6 +249,8 @@ if __name__ == "__main__":
     df_grouped = group_data(df)
     df_tier = tier(df_grouped)
     df_tier.limit(10).show()
+
+    print(process_user_email(df_tier))
 
     spark.stop()
     logger.info("Stopping Spark Session")

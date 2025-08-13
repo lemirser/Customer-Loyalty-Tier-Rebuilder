@@ -29,11 +29,11 @@ def html_template(
         arrow_color = "#000000"
         next_tier_info = ""
     elif level[current_tier]["grade"] > level[old_tier]["grade"]:
-        notification_type = "Tier Upgrade"
-        main_message = f"<p>Your tier has changed from {old_tier} to {current_tier}.\n\nBut don't worry, you're just a few steps away from regaining {[k for k, v in level.items() if v['grade']-1][0]} and unlocking all its perks again. We can't wait to celebrate your return!</p>"
+        notification_type = "Tier Downgrade"
+        main_message = f"<p>Your tier has changed from {old_tier} to {current_tier}.\n\nBut don't worry, you're just a few steps away from regaining {[k for k, v in level.items() if v['grade'] == level[current_tier]['grade']-1][0]} and unlocking all its perks again. We can't wait to celebrate your return!</p>"
         arrow_color = "#FA5053"
     else:
-        notification_type = "Tier Downgrade"
+        notification_type = "Tier Upgrade"
         main_message = f"<p>Congratulations! You've been upgraded from {old_tier} to {current_tier}.\n\nEnjoy your new perks and rewards—you've earned them!</p>"
         arrow_color = "#008000"
 

@@ -86,7 +86,7 @@ def html_template(
         <li>Discounted Add-ons — reduced rates on select premium features.</li>
         """
     elif current_tier == "Bronze":
-        amount_benchmark = 50000
+        amount_benchmark = 20000
         if sum_amount >= amount_benchmark:
             spend_value = 0
         else:

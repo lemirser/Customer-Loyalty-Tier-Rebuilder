@@ -40,16 +40,23 @@ def html_template(
     # Tier upgrade message
     if current_tier == "Gold":
         amount_benchmark = 100000
+        transaction_count_benchmark = 20
+
         if sum_amount >= amount_benchmark:
             spend_value = 0
         else:
             spend_value = amount_benchmark - sum_amount
 
+        if transaction_count >= transaction_count_benchmark:
+            trans_count_value = 0
+        else:
+            trans_count_value = transaction_count_benchmark - transaction_count
+
         next_tier_info = f"""
         <div style="margin: 0 0 30px 0; padding: 20px; background-color: #D9D9D9; border-left: 4px solid #B5B5B5; border-radius: 4px;">
             <h4 style="margin: 0 0 10px 0; color: #636363;">Next Goal: Platinum Tier</h4>
             <p style="margin: 0; color: #636363; font-size: 14px;">
-                Spend ₱{spend_value:,.2f} more and complete {20-transaction_count} more transactions to unlock Platinum benefits!
+                Spend ₱{spend_value:,.2f} more and complete {trans_count_value} more transactions to unlock Platinum benefits!
             </p>
         </div>
         """
@@ -64,16 +71,23 @@ def html_template(
 
     elif current_tier == "Silver":
         amount_benchmark = 50000
+        transaction_count_benchmark = 10
+
         if sum_amount >= amount_benchmark:
             spend_value = 0
         else:
             spend_value = amount_benchmark - sum_amount
 
+        if transaction_count >= transaction_count_benchmark:
+            trans_count_value = 0
+        else:
+            trans_count_value = transaction_count_benchmark - transaction_count
+
         next_tier_info = f"""
         <div style="margin: 0 0 30px 0; padding: 20px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
             <h4 style="margin: 0 0 10px 0; color: #856404;">Next Goal: Gold Tier</h4>
             <p style="margin: 0; color: #856404; font-size: 14px;">
-                Spend ₱{spend_value:,.2f} more and complete {10-transaction_count} more transactions to unlock Gold benefits!
+                Spend ₱{spend_value:,.2f} more and complete {trans_count_value} more transactions to unlock Gold benefits!
             </p>
         </div>
         """
@@ -87,16 +101,23 @@ def html_template(
         """
     elif current_tier == "Bronze":
         amount_benchmark = 20000
+        transaction_count_benchmark = 5
+
         if sum_amount >= amount_benchmark:
             spend_value = 0
         else:
             spend_value = amount_benchmark - sum_amount
 
+        if transaction_count >= transaction_count_benchmark:
+            trans_count_value = 0
+        else:
+            trans_count_value = transaction_count_benchmark - transaction_count
+
         next_tier_info = f"""
         <div style="margin: 0 0 30px 0; padding: 20px; background-color: #E0E0E0; border-left: 4px solid #C4C4C4; border-radius: 4px;">
             <h4 style="margin: 0 0 10px 0; color: #666666;">Next Goal: Silver Tier</h4>
             <p style="margin: 0; color: #666666; font-size: 14px;">
-                Spend ₱{spend_value:,.2f} more and complete {5-transaction_count} more transactions to unlock Silver benefits!
+                Spend ₱{spend_value:,.2f} more and complete {trans_count_value} more transactions to unlock Silver benefits!
             </p>
         </div>
         """

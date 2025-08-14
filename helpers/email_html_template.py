@@ -18,6 +18,15 @@ arrow_symbol = "&#8594;"
 
 
 def notification_message(current_tier: str, old_tier: str) -> tuple:
+    """Process notification message for the template
+
+    Args:
+        current_tier (str): Current Tier level of the user
+        old_tier (str): Previous Tier level of the user
+
+    Returns:
+        tuple: Return the notification type, main message, and arrow color based on the tier level of the user
+    """
     body_message = {
         "equal": {
             "notification_type": "Tier",

@@ -52,6 +52,117 @@ def notification_message(current_tier: str, old_tier: str) -> tuple:
     return notification_type, main_message, arrow_color
 
 
+def tier_upgrade(current_tier: str, sum_amount: float, transaction_count: int) -> tuple:
+    """Process tier upgrade
+
+    Args:
+        current_tier (str):         Tier level
+        sum_amount (float):         Total transaction amount
+        transaction_count (int):    Total transaction count
+
+    Returns:
+        _tuple_: notification_message and tier_benefits
+    """
+
+    spend_value = 0
+    trans_count_value = 0
+
+    tier_details = {
+        "Gold": {
+            "amount_benchmark": 100000,
+            "t_count_benchmark": 20,
+            "tier_benefits": """
+        <li>Priority Support — faster ticket resolution times.</li>
+        <li>Early Feature Previews — access upcoming tools before general release.</li>
+        <li>Quarterly Usage Review — recommendations to maximize subscription value.</li>
+        <li>Moderate Usage Boost — higher quotas compared to Silver/Bronze.</li>
+        <li>Exclusive Webinars & Training — expert-led sessions for power users.</li>
+        """,
+        },
+        "Silver": {
+            "amount_benchmark": 50000,
+            "t_count_benchmark": 10,
+            "tier_benefits": """
+        <li>Extended Support Hours — support beyond standard business hours.</li>
+        <li>Invites to Select Webinars — product best-practices and tips.</li>
+        <li>One-Time Setup Optimization — review to improve account efficiency.</li>
+        <li>Basic Usage Boost — slightly increased quotas vs. Bronze.</li>
+        <li>Discounted Add-ons — reduced rates on select premium features.</li>
+        """,
+        },
+        "Bronze": {
+            "amount_benchmark": 20000,
+            "t_count_benchmark": 5,
+            "tier_benefits": """
+        <li>Extended Support Hours — support beyond standard business hours.</li>
+        <li>Invites to Select Webinars — product best-practices and tips.</li>
+        <li>One-Time Setup Optimization — review to improve account efficiency.</li>
+        <li>Basic Usage Boost — slightly increased quotas vs. Bronze.</li>
+        <li>Discounted Add-ons — reduced rates on select premium features.</li>
+        """,
+        },
+    }
+
+    # Check which is higher, transaction amount (sum_amount) or amount_benchmark
+    if sum_amount < tier_details[current_tier]["amount_benchmark"]:
+        spend_value = tier_details[current_tier]["amount_benchmark"] - sum_amount
+
+    # Check which is higher, transaction count or transaction count benchmark (t_count_benchmark)
+    if transaction_count <= tier_details[current_tier]["t_count_benchmark"]:
+        trans_count_value = (
+            tier_details[current_tier]["t_count_benchmark"] - transaction_count
+        )
+
+    # Tier upgrade message
+    if current_tier == "Gold":
+        next_tier_info = f"""
+        <div style="margin: 0 0 30px 0; padding: 20px; background-color: #D9D9D9; border-left: 4px solid #B5B5B5; border-radius: 4px;">
+            <h4 style="margin: 0 0 10px 0; color: #636363;">Next Goal: Platinum Tier</h4>
+            <p style="margin: 0; color: #636363; font-size: 14px;">
+                Spend ₱{spend_value:,.2f} more and complete {trans_count_value} more transactions to unlock Platinum benefits!
+            </p>
+        </div>
+        """
+
+        tier_benefits = tier_details[current_tier]["tier_benefits"]
+
+    elif current_tier == "Silver":
+        next_tier_info = f"""
+        <div style="margin: 0 0 30px 0; padding: 20px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+            <h4 style="margin: 0 0 10px 0; color: #856404;">Next Goal: Gold Tier</h4>
+            <p style="margin: 0; color: #856404; font-size: 14px;">
+                Spend ₱{spend_value:,.2f} more and complete {trans_count_value} more transactions to unlock Gold benefits!
+            </p>
+        </div>
+        """
+
+        tier_benefits = tier_details[current_tier]["tier_benefits"]
+
+    elif current_tier == "Bronze":
+        next_tier_info = f"""
+        <div style="margin: 0 0 30px 0; padding: 20px; background-color: #E0E0E0; border-left: 4px solid #C4C4C4; border-radius: 4px;">
+            <h4 style="margin: 0 0 10px 0; color: #666666;">Next Goal: Silver Tier</h4>
+            <p style="margin: 0; color: #666666; font-size: 14px;">
+                Spend ₱{spend_value:,.2f} more and complete {trans_count_value} more transactions to unlock Silver benefits!
+            </p>
+        </div>
+        """
+
+        tier_benefits = tier_details[current_tier]["tier_benefits"]
+
+    else:
+        next_tier_info = ""
+        tier_benefits = """
+        <li>Dedicated Account Manager — direct support & priority handling.</li>
+        <li>Exclusive Beta Access — try new features before public release.</li>
+        <li>Free Quarterly Strategy Consultation — one-on-one business optimization.</li>
+        <li>Higher Usage Limits — expanded quotas on reports, API calls, and seats.</li>
+        <li>Loyalty Perks — annual gift pack or account credits.</li>
+        """
+
+    return next_tier_info, tier_benefits
+
+
 def html_template(
     current_tier,
     old_tier,
@@ -64,107 +175,9 @@ def html_template(
         current_tier, old_tier
     )
 
-    # Tier upgrade message
-    if current_tier == "Gold":
-        amount_benchmark = 100000
-        transaction_count_benchmark = 20
-
-        if sum_amount >= amount_benchmark:
-            spend_value = 0
-        else:
-            spend_value = amount_benchmark - sum_amount
-
-        if transaction_count >= transaction_count_benchmark:
-            trans_count_value = 0
-        else:
-            trans_count_value = transaction_count_benchmark - transaction_count
-
-        next_tier_info = f"""
-        <div style="margin: 0 0 30px 0; padding: 20px; background-color: #D9D9D9; border-left: 4px solid #B5B5B5; border-radius: 4px;">
-            <h4 style="margin: 0 0 10px 0; color: #636363;">Next Goal: Platinum Tier</h4>
-            <p style="margin: 0; color: #636363; font-size: 14px;">
-                Spend ₱{spend_value:,.2f} more and complete {trans_count_value} more transactions to unlock Platinum benefits!
-            </p>
-        </div>
-        """
-
-        tier_benefits = """
-        <li>Priority Support — faster ticket resolution times.</li>
-        <li>Early Feature Previews — access upcoming tools before general release.</li>
-        <li>Quarterly Usage Review — recommendations to maximize subscription value.</li>
-        <li>Moderate Usage Boost — higher quotas compared to Silver/Bronze.</li>
-        <li>Exclusive Webinars & Training — expert-led sessions for power users.</li>
-        """
-
-    elif current_tier == "Silver":
-        amount_benchmark = 50000
-        transaction_count_benchmark = 10
-
-        if sum_amount >= amount_benchmark:
-            spend_value = 0
-        else:
-            spend_value = amount_benchmark - sum_amount
-
-        if transaction_count >= transaction_count_benchmark:
-            trans_count_value = 0
-        else:
-            trans_count_value = transaction_count_benchmark - transaction_count
-
-        next_tier_info = f"""
-        <div style="margin: 0 0 30px 0; padding: 20px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
-            <h4 style="margin: 0 0 10px 0; color: #856404;">Next Goal: Gold Tier</h4>
-            <p style="margin: 0; color: #856404; font-size: 14px;">
-                Spend ₱{spend_value:,.2f} more and complete {trans_count_value} more transactions to unlock Gold benefits!
-            </p>
-        </div>
-        """
-
-        tier_benefits = """
-        <li>Extended Support Hours — support beyond standard business hours.</li>
-        <li>Invites to Select Webinars — product best-practices and tips.</li>
-        <li>One-Time Setup Optimization — review to improve account efficiency.</li>
-        <li>Basic Usage Boost — slightly increased quotas vs. Bronze.</li>
-        <li>Discounted Add-ons — reduced rates on select premium features.</li>
-        """
-    elif current_tier == "Bronze":
-        amount_benchmark = 20000
-        transaction_count_benchmark = 5
-
-        if sum_amount >= amount_benchmark:
-            spend_value = 0
-        else:
-            spend_value = amount_benchmark - sum_amount
-
-        if transaction_count >= transaction_count_benchmark:
-            trans_count_value = 0
-        else:
-            trans_count_value = transaction_count_benchmark - transaction_count
-
-        next_tier_info = f"""
-        <div style="margin: 0 0 30px 0; padding: 20px; background-color: #E0E0E0; border-left: 4px solid #C4C4C4; border-radius: 4px;">
-            <h4 style="margin: 0 0 10px 0; color: #666666;">Next Goal: Silver Tier</h4>
-            <p style="margin: 0; color: #666666; font-size: 14px;">
-                Spend ₱{spend_value:,.2f} more and complete {trans_count_value} more transactions to unlock Silver benefits!
-            </p>
-        </div>
-        """
-
-        tier_benefits = """
-        <li>Extended Support Hours — support beyond standard business hours.</li>
-        <li>Invites to Select Webinars — product best-practices and tips.</li>
-        <li>One-Time Setup Optimization — review to improve account efficiency.</li>
-        <li>Basic Usage Boost — slightly increased quotas vs. Bronze.</li>
-        <li>Discounted Add-ons — reduced rates on select premium features.</li>
-        """
-    else:
-        next_tier_info = ""
-        tier_benefits = """
-        <li>Dedicated Account Manager — direct support & priority handling.</li>
-        <li>Exclusive Beta Access — try new features before public release.</li>
-        <li>Free Quarterly Strategy Consultation — one-on-one business optimization.</li>
-        <li>Higher Usage Limits — expanded quotas on reports, API calls, and seats.</li>
-        <li>Loyalty Perks — annual gift pack or account credits.</li>
-        """
+    next_tier_info, tier_benefits = tier_upgrade(
+        current_tier, sum_amount, transaction_count
+    )
 
     template = f"""
     <!DOCTYPE html>

@@ -1,3 +1,21 @@
+dashboard_url = "https://www.youtube.com"  # Placeholder
+cta_color = ""
+
+unsubscribe_url = "https://www.google.com"  # Placeholder
+level = {
+    "Platinum": {
+        "header_color": "#D9D9D9",
+        "new_tier_color": "#8e44ad",
+        "grade": 1,
+    },
+    "Gold": {"header_color": "#f39c12", "new_tier_color": "#f39c12", "grade": 2},
+    "Silver": {"header_color": "#95a5a6", "new_tier_color": "#95a5a6", "grade": 3},
+    "Bronze": {"header_color": "#d68910", "new_tier_color": "#d68910", "grade": 4},
+}
+
+arrow_symbol = "&#8594;"
+
+
 def html_template(
     current_tier,
     old_tier,
@@ -7,22 +25,6 @@ def html_template(
     transaction_count=0,
 ):
 
-    dashboard_url = "https://www.youtube.com"  # Placeholder
-    cta_color = ""
-
-    unsubscribe_url = "https://www.google.com"  # Placeholder
-    level = {
-        "Platinum": {
-            "header_color": "#D9D9D9",
-            "new_tier_color": "#8e44ad",
-            "grade": 1,
-        },
-        "Gold": {"header_color": "#f39c12", "new_tier_color": "#f39c12", "grade": 2},
-        "Silver": {"header_color": "#95a5a6", "new_tier_color": "#95a5a6", "grade": 3},
-        "Bronze": {"header_color": "#d68910", "new_tier_color": "#d68910", "grade": 4},
-    }
-
-    arrow_symbol = "&#8594;"
     if current_tier.lower().strip() == old_tier.lower().strip():
         notification_type = "Tier"
         main_message = "<p>We're truly grateful for your continued trust and support. Your loyalty inspires us to keep delivering the best products and service possible. Here's to many more moments together!\n\nThank you for being part of our journey.</p>"

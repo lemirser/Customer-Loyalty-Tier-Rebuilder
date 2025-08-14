@@ -13,7 +13,43 @@ level = {
     "Bronze": {"header_color": "#d68910", "new_tier_color": "#d68910", "grade": 4},
 }
 
+# ASCII character for an arrow
 arrow_symbol = "&#8594;"
+
+
+def notification_message(current_tier: str, old_tier: str) -> tuple:
+    body_message = {
+        "equal": {
+            "notification_type": "Tier",
+            "main_message": "<p>We're truly grateful for your continued trust and support. Your loyalty inspires us to keep delivering the best products and service possible. Here's to many more moments together!\n\nThank you for being part of our journey.</p>",
+            "arrow_color": "#000000",
+        },
+        "upgrade": {
+            "notification_type": "Tier Upgrade",
+            "main_message": f"<p>Congratulations! You've been upgraded from {old_tier} to {current_tier}.\n\nEnjoy your new perks and rewards—you've earned them!</p>",
+            "arrow_color": "#008000",
+        },
+        "downgrade": {
+            "notification_type": "Tier Upgrade",
+            "main_message": f"<p>Your tier has changed from {old_tier} to {current_tier}.\n\nBut don't worry, you're just a few steps away from regaining {[k for k, v in level.items() if v['grade'] == level[current_tier]['grade']-1][0]} and unlocking all its perks again. We can't wait to celebrate your return!</p>",
+            "arrow_color": "#008000",
+        },
+    }
+
+    if current_tier.lower().strip() == old_tier.lower().strip():
+        notification_type = body_message["equal"]["notification_type"]
+        main_message = body_message["equal"]["main_message"]
+        arrow_color = body_message["equal"]["arrow_color"]
+    elif level[current_tier]["grade"] > level[old_tier]["grade"]:  # Downgrade tier
+        notification_type = body_message["downgrade"]["notification_type"]
+        main_message = body_message["downgrade"]["main_message"]
+        arrow_color = body_message["downgrade"]["arrow_color"]
+    else:  # Upgrade tier
+        notification_type = body_message["upgrade"]["notification_type"]
+        main_message = body_message["upgrade"]["main_message"]
+        arrow_color = body_message["upgrade"]["arrow_color"]
+
+    return notification_type, main_message, arrow_color
 
 
 def html_template(
@@ -24,20 +60,9 @@ def html_template(
     sum_amount=0,
     transaction_count=0,
 ):
-
-    if current_tier.lower().strip() == old_tier.lower().strip():
-        notification_type = "Tier"
-        main_message = "<p>We're truly grateful for your continued trust and support. Your loyalty inspires us to keep delivering the best products and service possible. Here's to many more moments together!\n\nThank you for being part of our journey.</p>"
-        arrow_color = "#000000"
-        next_tier_info = ""
-    elif level[current_tier]["grade"] > level[old_tier]["grade"]:
-        notification_type = "Tier Downgrade"
-        main_message = f"<p>Your tier has changed from {old_tier} to {current_tier}.\n\nBut don't worry, you're just a few steps away from regaining {[k for k, v in level.items() if v['grade'] == level[current_tier]['grade']-1][0]} and unlocking all its perks again. We can't wait to celebrate your return!</p>"
-        arrow_color = "#FA5053"
-    else:
-        notification_type = "Tier Upgrade"
-        main_message = f"<p>Congratulations! You've been upgraded from {old_tier} to {current_tier}.\n\nEnjoy your new perks and rewards—you've earned them!</p>"
-        arrow_color = "#008000"
+    notification_type, main_message, arrow_color = notification_message(
+        current_tier, old_tier
+    )
 
     # Tier upgrade message
     if current_tier == "Gold":
